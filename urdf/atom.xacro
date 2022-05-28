@@ -47,6 +47,37 @@
 
 	</link>
 
+	<!-- Make lidar_mount of Bot -->
+	<link name="3dlidar_mount">
+		<pose>0 0 0.1 0 0 0</pose>
+
+		<inertial>
+			<mass value="${robot_chassis_mass}"/>
+      		<origin xyz="0.0 0 0" rpy=" 0 0 0"/>
+
+      		<inertia 
+      			ixx="0.147116667" ixy="0" ixz="0"
+      			iyy="0.334951167" iyz="0"
+      			izz="0.3978345"
+      		/>
+		</inertial>
+
+		<collision name="collision">
+			<origin xyz="0 0 0.05" rpy=" 0 0 0"/>
+			<geometry>
+				<box size="0.12 0.12 0.3"/>
+			</geometry>
+		</collision>
+
+		<visual name="chassis_visual">
+			<origin xyz="0 0 0.05" rpy=" 0 0 0"/>
+			<geometry>
+				<box size="0.12 0.12 0.3"/>
+			</geometry>
+
+		</visual>
+
+	</link>
 
 	<!-- Right Wheel Back -->
 	<link name="right_wheel_back">
@@ -221,8 +252,100 @@
 	<link name="robot_footprint"></link>
 
 
+<!-- Give the base link a unique name -->
+ <link name="3dlidar_base">
+
+    <!-- Offset the base by half the lenght of the cylinder -->
+    <pose>0 0 0.029335 0 0 0</pose>
+
+	<inertial>
+      <mass value="1.2"/>
+	  <origin xyz="0 0 0.05" rpy=" 0 0 0"/>
+
+      <inertia
+        ixx="0.001087473"
+        iyy="0.001087473"
+        izz="0.001092437"
+        ixy="0"
+        ixz="0"
+        iyz="0"
+      />
+    </inertial>
+    <collision name="base_collision">
+	    <origin xyz="0 0 0.05" rpy=" 0 0 0"/>
+        <geometry>
+			<cylinder length=".05867" radius=".04267"/>
+        </geometry>
+    </collision>
+
+    <!-- The visual is mostly a copy of the collision -->
+    <visual name="base_visual">
+		<origin xyz="0 0 0.05" rpy=" 0 0 0"/>
+      	<geometry>
+        	<cylinder length=".05867" radius=".04267"/>
+      	</geometry>
+    </visual>
+  </link> -->
+
+
+  <!-- Give the base link a unique name -->
+  <link name="3dlidar_top">
+
+    <!-- Vertically offset the top cylinder by the length of the bottom
+        cylinder and half the length of this cylinder. -->
+    <pose>0 0 0.095455 0 0 0</pose>
+	<inertial>
+		<mass value="0.1"/>
+		<inertia
+        ixx="0.000090623"
+        iyy="0.000090623"
+        izz="0.000091036"
+        ixy="0"
+        ixz="0"
+        iyz="0"
+      />
+   </inertial>
+    <collision name="top_collision">
+      <geometry>
+	  <cylinder length="0.07357" radius=".04267"/>
+      </geometry>
+    </collision>
+
+    <!-- The visual is mostly a copy of the collision -->
+    <visual name="top_visual">
+      <geometry>
+	  <cylinder length="0.07357" radius=".04267"/>
+      </geometry>
+    </visual>
+  </link>
+
 
 	<!-- Define Joints -->
+
+  <!-- Each joint must have a unique name -->
+<joint name="3dlidar_baseTop_joint" type="revolute">
+
+  <!-- Position the joint at the bottom of the top link -->
+  <origin xyz="0 0 -0.0" rpy="0 0 0"/>
+
+  <!-- Use the base link as the parent of the joint -->
+  <parent link="3dlidar_base" />
+
+  <!-- Use the top link as the child of the joint -->
+  <child link="3dlidar_top" />
+
+  <!-- The axis defines the joint's degree of freedom -->
+  <axis xyz="0 0 1" />
+
+    <!-- Limit refers to the range of motion of the joint -->
+   <limit
+      lower="-10000000000000000"
+      upper="10000000000000000"
+      velocity="2"
+	    effort="1"
+    />
+  
+</joint>
 
 	<!-- Right Wheel Joint Back-->
 	<joint type="continuous" name="right_wheel_hinge_back">
@@ -281,11 +404,31 @@
 	    <axis xyz="0 1 0"/> 
 	</joint>
 
+	<!-- 3dlidar mount Joint -->
+	<joint name="3dlidar_mount_joint" type="fixed">
+	    <origin xyz="0.0 0 0.2" rpy="0 0 0" />
+	    <parent link="chassis"/>
+	    <child link="3dlidar_mount" />  
+	    <axis xyz="0 1 0"/> 
+	</joint>
+
+  	<!-- 3dlidar Joint -->
+	<joint name="3dlidar_joint" type="fixed">
+	    <origin xyz="0.0 0 0.4" rpy="0 0 0" />
+	    <parent link="chassis"/>
+	    <child link="3dlidar_base" />  
+	    <axis xyz="0 1 0"/> 
+	</joint>
+
+
+
 	<joint name="robot_footprint_joint" type="fixed">
 		<origin xyz="0 0 0" rpy="0 0 0" />
 		<parent link="robot_footprint"/>
 		<child link="chassis" />
 	</joint>
+
+
 
 
 	<!-- Color of bot -->
@@ -327,11 +470,16 @@
 		<maxVel>1.0</maxVel>
 		<minDepth>0.00</minDepth>
 	</gazebo>
-	<!--<gazebo reference="right_wheel">
+  
+	<gazebo reference="right_wheel">
 		<material>Gazebo/Green</material>
-	</gazebo>-->
+	</gazebo>
 
 	<gazebo reference="camera">
+		<material>Gazebo/Red</material>
+	</gazebo>
+
+  <gazebo reference="3dlidar_top">
 		<material>Gazebo/Red</material>
 	</gazebo>
 
