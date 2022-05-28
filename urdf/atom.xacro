@@ -40,7 +40,7 @@
 		<visual name="chassis_visual">
 			<origin xyz="0 0 0.05" rpy=" 0 0 0"/>
 			<geometry>
-				<box size="0.5 0.5 0.2"/>
+				<mesh filename="package://atom/meshes/chassis.dae"/>
 			</geometry>
 
 		</visual>
